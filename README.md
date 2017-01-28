@@ -1,6 +1,6 @@
 # Angular Socket.IO Chat
 
-Developing chat concept [https://www.behance.net/gallery/44557731/Socketio-Chat](Behance Socket.io Chat). When developing, i used:
+Developing chat concept [Behance Socket.io Chat](https://www.behance.net/gallery/44557731/Socketio-Chat). When developing, i used:
 
 * [AngularJS](http://angularjs.org)
 * [Socket.IO](http://socket.io)

@@ -1,7 +1,7 @@
 {
   "name": "ad-socketio-chat",
   "version": "1.0.0",
-  "description": "Developing chat concept on AngularJS + Socket.IO",
+  "description": "Chat concept developed on the AngularJS, Socket.IO, NodeJS / Express. Feel free to fork / experiment.",
   "main": "gulpfile.js",
   "scripts": {
     "start": "gulp build && node server/run.js",
