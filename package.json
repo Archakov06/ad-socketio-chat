@@ -1,10 +1,10 @@
 {
   "name": "ad-socketio-chat",
   "version": "1.0.0",
-  "description": "",
+  "description": "Developing chat concept on AngularJS + Socket.IO",
   "main": "gulpfile.js",
   "scripts": {
-    "start": "node server/run.js",
+    "start": "gulp build && node server/run.js",
     "build": "gulp build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
