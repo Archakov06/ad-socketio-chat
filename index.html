@@ -1,0 +1,273 @@
+
+<html ng-app="app">
+  <head>
+    <title>AngularJS Socketio Chat</title>
+    <link href="public/css/app.min.css" rel="stylesheet" type="text/css"/>
+  </head>
+</html>
+<body ng-controller="appController">
+  <div class="chat-block">
+    <div class="sidebar">
+      <div class="row row--search"><svg enable-background="new 0 0 139 139" height="139px" id="Find" version="1.1" viewBox="0 0 139 139" width="139px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M127.558,111.961L100.249,84.65c4.64-7.387,7.333-16.118,7.333-25.488c0-26.509-21.49-47.996-47.998-47.996  c-26.508,0-47.996,21.487-47.996,47.996c0,26.51,21.487,47.995,47.996,47.995c10.197,0,19.642-3.188,27.414-8.605l26.984,26.986  c1.875,1.873,4.333,2.806,6.788,2.806c2.458,0,4.913-0.933,6.791-2.806C131.308,121.787,131.308,115.711,127.558,111.961z   M59.584,91.607c-17.917,0-32.443-14.525-32.443-32.443S41.667,26.72,59.584,26.72c17.918,0,32.443,14.526,32.443,32.444  S77.502,91.607,59.584,91.607z"/></svg>
+        <input placeholder="Search user..." ng-model="users.name"/>
+      </div>
+      <div class="row row--online-list">
+        <div class="row"><span>Online users (<span ng-bind="online"></span>):</span></div>
+        <div class="row">
+          <ul>
+            <li ng-repeat="user in users | filter:{name:users.name} | orderBy:'is_online':true" ng-class="user.is_online ? 'online' : 'offline'" ng-click="quoteUser(user.name)" ng-bind="user.name"></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="row row--header">
+        <input ng-show="search_input" id="search-input" placeholder="Enter searching text..." ng-model="message.text"/>
+        <label id="title-input" ng-bind="title"></label>
+        <div><svg ng-click="searchMessage()" enable-background="new 0 0 139 139" height="139px" id="Find" version="1.1" viewBox="0 0 139 139" width="139px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M127.558,111.961L100.249,84.65c4.64-7.387,7.333-16.118,7.333-25.488c0-26.509-21.49-47.996-47.998-47.996  c-26.508,0-47.996,21.487-47.996,47.996c0,26.51,21.487,47.995,47.996,47.995c10.197,0,19.642-3.188,27.414-8.605l26.984,26.986  c1.875,1.873,4.333,2.806,6.788,2.806c2.458,0,4.913-0.933,6.791-2.806C131.308,121.787,131.308,115.711,127.558,111.961z   M59.584,91.607c-17.917,0-32.443-14.525-32.443-32.443S41.667,26.72,59.584,26.72c17.918,0,32.443,14.526,32.443,32.444  S77.502,91.607,59.584,91.607z"/></svg><a ng-click="editDel()" ng-bind="!editing ? 'Edit' : 'Done'">Edit</a></div>
+      </div>
+      <div class="row row--messages">
+        <div class="row" ng-repeat="message in messages | filter:{text:message.text}" ng-class="uid == message.uid ? 'row--message-me' : ''">
+          <div class="message new" ng-click="messageAction($index)">
+            <div class="check" data-check-id="{{$index}}"><svg enable-background="new 0 0 32 32" height="32px" version="1.1" viewBox="0 0 32 32" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path clip-rule="evenodd" d="M27.704,8.397c-0.394-0.391-1.034-0.391-1.428,0  L11.988,22.59l-6.282-6.193c-0.394-0.391-1.034-0.391-1.428,0c-0.394,0.391-0.394,1.024,0,1.414l6.999,6.899  c0.39,0.386,1.039,0.386,1.429,0L27.704,9.811C28.099,9.421,28.099,8.787,27.704,8.397C27.31,8.006,28.099,8.787,27.704,8.397z" fill="#121313" fill-rule="evenodd"/></svg></div>
+            <p ng-bind-html="message.text | check_message"></p><span ng-bind="messageStatus(message.name,message.time)"></span>
+          </div>
+        </div>
+      </div>
+      <div class="row row--input" ng-keypress="($event.which === 13) ? addMessage() : 0">
+        <div class="emoticons-popover">
+          <ul>
+            <li data-emotion-id=":afro-1:" ng-click="emotAdd('afro-1')"><img src="public/img/afro-1.png"/></li>
+            <li data-emotion-id=":afro:" ng-click="emotAdd('afro')"><img src="public/img/afro.png"/></li>
+            <li data-emotion-id=":agent:" ng-click="emotAdd('agent')"><img src="public/img/agent.png"/></li>
+            <li data-emotion-id=":alien-1:" ng-click="emotAdd('alien-1')"><img src="public/img/alien-1.png"/></li>
+            <li data-emotion-id=":alien:" ng-click="emotAdd('alien')"><img src="public/img/alien.png"/></li>
+            <li data-emotion-id=":angel:" ng-click="emotAdd('angel')"><img src="public/img/angel.png"/></li>
+            <li data-emotion-id=":angry-1:" ng-click="emotAdd('angry-1')"><img src="public/img/angry-1.png"/></li>
+            <li data-emotion-id=":angry-2:" ng-click="emotAdd('angry-2')"><img src="public/img/angry-2.png"/></li>
+            <li data-emotion-id=":angry-3:" ng-click="emotAdd('angry-3')"><img src="public/img/angry-3.png"/></li>
+            <li data-emotion-id=":angry-4:" ng-click="emotAdd('angry-4')"><img src="public/img/angry-4.png"/></li>
+            <li data-emotion-id=":angry-5:" ng-click="emotAdd('angry-5')"><img src="public/img/angry-5.png"/></li>
+            <li data-emotion-id=":angry:" ng-click="emotAdd('angry')"><img src="public/img/angry.png"/></li>
+            <li data-emotion-id=":arguing:" ng-click="emotAdd('arguing')"><img src="public/img/arguing.png"/></li>
+            <li data-emotion-id=":arrogant:" ng-click="emotAdd('arrogant')"><img src="public/img/arrogant.png"/></li>
+            <li data-emotion-id=":asian-1:" ng-click="emotAdd('asian-1')"><img src="public/img/asian-1.png"/></li>
+            <li data-emotion-id=":asian:" ng-click="emotAdd('asian')"><img src="public/img/asian.png"/></li>
+            <li data-emotion-id=":avatar:" ng-click="emotAdd('avatar')"><img src="public/img/avatar.png"/></li>
+            <li data-emotion-id=":baby-1:" ng-click="emotAdd('baby-1')"><img src="public/img/baby-1.png"/></li>
+            <li data-emotion-id=":baby-2:" ng-click="emotAdd('baby-2')"><img src="public/img/baby-2.png"/></li>
+            <li data-emotion-id=":baby:" ng-click="emotAdd('baby')"><img src="public/img/baby.png"/></li>
+            <li data-emotion-id=":bully:" ng-click="emotAdd('bully')"><img src="public/img/bully.png"/></li>
+            <li data-emotion-id=":burglar:" ng-click="emotAdd('burglar')"><img src="public/img/burglar.png"/></li>
+            <li data-emotion-id=":businessman:" ng-click="emotAdd('businessman')"><img src="public/img/businessman.png"/></li>
+            <li data-emotion-id=":cheeky-1:" ng-click="emotAdd('cheeky-1')"><img src="public/img/cheeky-1.png"/></li>
+            <li data-emotion-id=":cheeky:" ng-click="emotAdd('cheeky')"><img src="public/img/cheeky.png"/></li>
+            <li data-emotion-id=":clown:" ng-click="emotAdd('clown')"><img src="public/img/clown.png"/></li>
+            <li data-emotion-id=":confused-1:" ng-click="emotAdd('confused-1')"><img src="public/img/confused-1.png"/></li>
+            <li data-emotion-id=":confused-2:" ng-click="emotAdd('confused-2')"><img src="public/img/confused-2.png"/></li>
+            <li data-emotion-id=":confused-3:" ng-click="emotAdd('confused-3')"><img src="public/img/confused-3.png"/></li>
+            <li data-emotion-id=":confused:" ng-click="emotAdd('confused')"><img src="public/img/confused.png"/></li>
+            <li data-emotion-id=":creepy:" ng-click="emotAdd('creepy')"><img src="public/img/creepy.png"/></li>
+            <li data-emotion-id=":crying-1:" ng-click="emotAdd('crying-1')"><img src="public/img/crying-1.png"/></li>
+            <li data-emotion-id=":crying-2:" ng-click="emotAdd('crying-2')"><img src="public/img/crying-2.png"/></li>
+            <li data-emotion-id=":crying-3:" ng-click="emotAdd('crying-3')"><img src="public/img/crying-3.png"/></li>
+            <li data-emotion-id=":crying:" ng-click="emotAdd('crying')"><img src="public/img/crying.png"/></li>
+            <li data-emotion-id=":dazed-1:" ng-click="emotAdd('dazed-1')"><img src="public/img/dazed-1.png"/></li>
+            <li data-emotion-id=":dazed-2:" ng-click="emotAdd('dazed-2')"><img src="public/img/dazed-2.png"/></li>
+            <li data-emotion-id=":dazed-3:" ng-click="emotAdd('dazed-3')"><img src="public/img/dazed-3.png"/></li>
+            <li data-emotion-id=":dazed:" ng-click="emotAdd('dazed')"><img src="public/img/dazed.png"/></li>
+            <li data-emotion-id=":dead-1:" ng-click="emotAdd('dead-1')"><img src="public/img/dead-1.png"/></li>
+            <li data-emotion-id=":dead-2:" ng-click="emotAdd('dead-2')"><img src="public/img/dead-2.png"/></li>
+            <li data-emotion-id=":dead-3:" ng-click="emotAdd('dead-3')"><img src="public/img/dead-3.png"/></li>
+            <li data-emotion-id=":dead-4:" ng-click="emotAdd('dead-4')"><img src="public/img/dead-4.png"/></li>
+            <li data-emotion-id=":dead-5:" ng-click="emotAdd('dead-5')"><img src="public/img/dead-5.png"/></li>
+            <li data-emotion-id=":dead-6:" ng-click="emotAdd('dead-6')"><img src="public/img/dead-6.png"/></li>
+            <li data-emotion-id=":dead:" ng-click="emotAdd('dead')"><img src="public/img/dead.png"/></li>
+            <li data-emotion-id=":desperate-1:" ng-click="emotAdd('desperate-1')"><img src="public/img/desperate-1.png"/></li>
+            <li data-emotion-id=":desperate:" ng-click="emotAdd('desperate')"><img src="public/img/desperate.png"/></li>
+            <li data-emotion-id=":detective:" ng-click="emotAdd('detective')"><img src="public/img/detective.png"/></li>
+            <li data-emotion-id=":dissapointment:" ng-click="emotAdd('dissapointment')"><img src="public/img/dissapointment.png"/></li>
+            <li data-emotion-id=":doctor:" ng-click="emotAdd('doctor')"><img src="public/img/doctor.png"/></li>
+            <li data-emotion-id=":drunk:" ng-click="emotAdd('drunk')"><img src="public/img/drunk.png"/></li>
+            <li data-emotion-id=":dumb:" ng-click="emotAdd('dumb')"><img src="public/img/dumb.png"/></li>
+            <li data-emotion-id=":emo-1:" ng-click="emotAdd('emo-1')"><img src="public/img/emo-1.png"/></li>
+            <li data-emotion-id=":emo-2:" ng-click="emotAdd('emo-2')"><img src="public/img/emo-2.png"/></li>
+            <li data-emotion-id=":emo:" ng-click="emotAdd('emo')"><img src="public/img/emo.png"/></li>
+            <li data-emotion-id=":emoticon:" ng-click="emotAdd('emoticon')"><img src="public/img/emoticon.png"/></li>
+            <li data-emotion-id=":evil:" ng-click="emotAdd('evil')"><img src="public/img/evil.png"/></li>
+            <li data-emotion-id=":faint-1:" ng-click="emotAdd('faint-1')"><img src="public/img/faint-1.png"/></li>
+            <li data-emotion-id=":faint:" ng-click="emotAdd('faint')"><img src="public/img/faint.png"/></li>
+            <li data-emotion-id=":flirt-1:" ng-click="emotAdd('flirt-1')"><img src="public/img/flirt-1.png"/></li>
+            <li data-emotion-id=":flirt-2:" ng-click="emotAdd('flirt-2')"><img src="public/img/flirt-2.png"/></li>
+            <li data-emotion-id=":flirt:" ng-click="emotAdd('flirt')"><img src="public/img/flirt.png"/></li>
+            <li data-emotion-id=":flirty:" ng-click="emotAdd('flirty')"><img src="public/img/flirty.png"/></li>
+            <li data-emotion-id=":gangster:" ng-click="emotAdd('gangster')"><img src="public/img/gangster.png"/></li>
+            <li data-emotion-id=":geek-1:" ng-click="emotAdd('geek-1')"><img src="public/img/geek-1.png"/></li>
+            <li data-emotion-id=":geek:" ng-click="emotAdd('geek')"><img src="public/img/geek.png"/></li>
+            <li data-emotion-id=":gentleman-1:" ng-click="emotAdd('gentleman-1')"><img src="public/img/gentleman-1.png"/></li>
+            <li data-emotion-id=":gentleman-2:" ng-click="emotAdd('gentleman-2')"><img src="public/img/gentleman-2.png"/></li>
+            <li data-emotion-id=":gentleman-3:" ng-click="emotAdd('gentleman-3')"><img src="public/img/gentleman-3.png"/></li>
+            <li data-emotion-id=":gentleman-4:" ng-click="emotAdd('gentleman-4')"><img src="public/img/gentleman-4.png"/></li>
+            <li data-emotion-id=":gentleman:" ng-click="emotAdd('gentleman')"><img src="public/img/gentleman.png"/></li>
+            <li data-emotion-id=":ginger:" ng-click="emotAdd('ginger')"><img src="public/img/ginger.png"/></li>
+            <li data-emotion-id=":girl-1:" ng-click="emotAdd('girl-1')"><img src="public/img/girl-1.png"/></li>
+            <li data-emotion-id=":girl:" ng-click="emotAdd('girl')"><img src="public/img/girl.png"/></li>
+            <li data-emotion-id=":goofy-1:" ng-click="emotAdd('goofy-1')"><img src="public/img/goofy-1.png"/></li>
+            <li data-emotion-id=":goofy-2:" ng-click="emotAdd('goofy-2')"><img src="public/img/goofy-2.png"/></li>
+            <li data-emotion-id=":goofy-3:" ng-click="emotAdd('goofy-3')"><img src="public/img/goofy-3.png"/></li>
+            <li data-emotion-id=":goofy-4:" ng-click="emotAdd('goofy-4')"><img src="public/img/goofy-4.png"/></li>
+            <li data-emotion-id=":goofy:" ng-click="emotAdd('goofy')"><img src="public/img/goofy.png"/></li>
+            <li data-emotion-id=":grubby-1:" ng-click="emotAdd('grubby-1')"><img src="public/img/grubby-1.png"/></li>
+            <li data-emotion-id=":grubby:" ng-click="emotAdd('grubby')"><img src="public/img/grubby.png"/></li>
+            <li data-emotion-id=":happy-1:" ng-click="emotAdd('happy-1')"><img src="public/img/happy-1.png"/></li>
+            <li data-emotion-id=":happy-10:" ng-click="emotAdd('happy-10')"><img src="public/img/happy-10.png"/></li>
+            <li data-emotion-id=":happy-11:" ng-click="emotAdd('happy-11')"><img src="public/img/happy-11.png"/></li>
+            <li data-emotion-id=":happy-12:" ng-click="emotAdd('happy-12')"><img src="public/img/happy-12.png"/></li>
+            <li data-emotion-id=":happy-13:" ng-click="emotAdd('happy-13')"><img src="public/img/happy-13.png"/></li>
+            <li data-emotion-id=":happy-14:" ng-click="emotAdd('happy-14')"><img src="public/img/happy-14.png"/></li>
+            <li data-emotion-id=":happy-15:" ng-click="emotAdd('happy-15')"><img src="public/img/happy-15.png"/></li>
+            <li data-emotion-id=":happy-16:" ng-click="emotAdd('happy-16')"><img src="public/img/happy-16.png"/></li>
+            <li data-emotion-id=":happy-2:" ng-click="emotAdd('happy-2')"><img src="public/img/happy-2.png"/></li>
+            <li data-emotion-id=":happy-3:" ng-click="emotAdd('happy-3')"><img src="public/img/happy-3.png"/></li>
+            <li data-emotion-id=":happy-4:" ng-click="emotAdd('happy-4')"><img src="public/img/happy-4.png"/></li>
+            <li data-emotion-id=":happy-5:" ng-click="emotAdd('happy-5')"><img src="public/img/happy-5.png"/></li>
+            <li data-emotion-id=":happy-6:" ng-click="emotAdd('happy-6')"><img src="public/img/happy-6.png"/></li>
+            <li data-emotion-id=":happy-7:" ng-click="emotAdd('happy-7')"><img src="public/img/happy-7.png"/></li>
+            <li data-emotion-id=":happy-8:" ng-click="emotAdd('happy-8')"><img src="public/img/happy-8.png"/></li>
+            <li data-emotion-id=":happy-9:" ng-click="emotAdd('happy-9')"><img src="public/img/happy-9.png"/></li>
+            <li data-emotion-id=":happy:" ng-click="emotAdd('happy')"><img src="public/img/happy.png"/></li>
+            <li data-emotion-id=":harry-potter:" ng-click="emotAdd('harry-potter')"><img src="public/img/harry-potter.png"/></li>
+            <li data-emotion-id=":heisenberg:" ng-click="emotAdd('heisenberg')"><img src="public/img/heisenberg.png"/></li>
+            <li data-emotion-id=":hipster-1:" ng-click="emotAdd('hipster-1')"><img src="public/img/hipster-1.png"/></li>
+            <li data-emotion-id=":hipster-2:" ng-click="emotAdd('hipster-2')"><img src="public/img/hipster-2.png"/></li>
+            <li data-emotion-id=":hipster:" ng-click="emotAdd('hipster')"><img src="public/img/hipster.png"/></li>
+            <li data-emotion-id=":in-love-1:" ng-click="emotAdd('in-love-1')"><img src="public/img/in-love-1.png"/></li>
+            <li data-emotion-id=":in-love-2:" ng-click="emotAdd('in-love-2')"><img src="public/img/in-love-2.png"/></li>
+            <li data-emotion-id=":in-love-3:" ng-click="emotAdd('in-love-3')"><img src="public/img/in-love-3.png"/></li>
+            <li data-emotion-id=":in-love-4:" ng-click="emotAdd('in-love-4')"><img src="public/img/in-love-4.png"/></li>
+            <li data-emotion-id=":in-love-5:" ng-click="emotAdd('in-love-5')"><img src="public/img/in-love-5.png"/></li>
+            <li data-emotion-id=":in-love-6:" ng-click="emotAdd('in-love-6')"><img src="public/img/in-love-6.png"/></li>
+            <li data-emotion-id=":in-love:" ng-click="emotAdd('in-love')"><img src="public/img/in-love.png"/></li>
+            <li data-emotion-id=":japan:" ng-click="emotAdd('japan')"><img src="public/img/japan.png"/></li>
+            <li data-emotion-id=":jew:" ng-click="emotAdd('jew')"><img src="public/img/jew.png"/></li>
+            <li data-emotion-id=":joyful-1:" ng-click="emotAdd('joyful-1')"><img src="public/img/joyful-1.png"/></li>
+            <li data-emotion-id=":joyful-2:" ng-click="emotAdd('joyful-2')"><img src="public/img/joyful-2.png"/></li>
+            <li data-emotion-id=":joyful:" ng-click="emotAdd('joyful')"><img src="public/img/joyful.png"/></li>
+            <li data-emotion-id=":kiss-1:" ng-click="emotAdd('kiss-1')"><img src="public/img/kiss-1.png"/></li>
+            <li data-emotion-id=":kiss-2:" ng-click="emotAdd('kiss-2')"><img src="public/img/kiss-2.png"/></li>
+            <li data-emotion-id=":kiss-3:" ng-click="emotAdd('kiss-3')"><img src="public/img/kiss-3.png"/></li>
+            <li data-emotion-id=":kiss-4:" ng-click="emotAdd('kiss-4')"><img src="public/img/kiss-4.png"/></li>
+            <li data-emotion-id=":kiss:" ng-click="emotAdd('kiss')"><img src="public/img/kiss.png"/></li>
+            <li data-emotion-id=":laughing-1:" ng-click="emotAdd('laughing-1')"><img src="public/img/laughing-1.png"/></li>
+            <li data-emotion-id=":laughing-2:" ng-click="emotAdd('laughing-2')"><img src="public/img/laughing-2.png"/></li>
+            <li data-emotion-id=":laughing-3:" ng-click="emotAdd('laughing-3')"><img src="public/img/laughing-3.png"/></li>
+            <li data-emotion-id=":laughing:" ng-click="emotAdd('laughing')"><img src="public/img/laughing.png"/></li>
+            <li data-emotion-id=":listening:" ng-click="emotAdd('listening')"><img src="public/img/listening.png"/></li>
+            <li data-emotion-id=":love:" ng-click="emotAdd('love')"><img src="public/img/love.png"/></li>
+            <li data-emotion-id=":manly:" ng-click="emotAdd('manly')"><img src="public/img/manly.png"/></li>
+            <li data-emotion-id=":miserly-1:" ng-click="emotAdd('miserly-1')"><img src="public/img/miserly-1.png"/></li>
+            <li data-emotion-id=":miserly:" ng-click="emotAdd('miserly')"><img src="public/img/miserly.png"/></li>
+            <li data-emotion-id=":nerd-1:" ng-click="emotAdd('nerd-1')"><img src="public/img/nerd-1.png"/></li>
+            <li data-emotion-id=":nerd-2:" ng-click="emotAdd('nerd-2')"><img src="public/img/nerd-2.png"/></li>
+            <li data-emotion-id=":nerd-3:" ng-click="emotAdd('nerd-3')"><img src="public/img/nerd-3.png"/></li>
+            <li data-emotion-id=":nerd-4:" ng-click="emotAdd('nerd-4')"><img src="public/img/nerd-4.png"/></li>
+            <li data-emotion-id=":nerd:" ng-click="emotAdd('nerd')"><img src="public/img/nerd.png"/></li>
+            <li data-emotion-id=":ninja:" ng-click="emotAdd('ninja')"><img src="public/img/ninja.png"/></li>
+            <li data-emotion-id=":pirate-1:" ng-click="emotAdd('pirate-1')"><img src="public/img/pirate-1.png"/></li>
+            <li data-emotion-id=":pirate-2:" ng-click="emotAdd('pirate-2')"><img src="public/img/pirate-2.png"/></li>
+            <li data-emotion-id=":pirate:" ng-click="emotAdd('pirate')"><img src="public/img/pirate.png"/></li>
+            <li data-emotion-id=":punk-1:" ng-click="emotAdd('punk-1')"><img src="public/img/punk-1.png"/></li>
+            <li data-emotion-id=":punk-2:" ng-click="emotAdd('punk-2')"><img src="public/img/punk-2.png"/></li>
+            <li data-emotion-id=":punk:" ng-click="emotAdd('punk')"><img src="public/img/punk.png"/></li>
+            <li data-emotion-id=":rapper:" ng-click="emotAdd('rapper')"><img src="public/img/rapper.png"/></li>
+            <li data-emotion-id=":relieved:" ng-click="emotAdd('relieved')"><img src="public/img/relieved.png"/></li>
+            <li data-emotion-id=":rich-1:" ng-click="emotAdd('rich-1')"><img src="public/img/rich-1.png"/></li>
+            <li data-emotion-id=":rich-2:" ng-click="emotAdd('rich-2')"><img src="public/img/rich-2.png"/></li>
+            <li data-emotion-id=":rich:" ng-click="emotAdd('rich')"><img src="public/img/rich.png"/></li>
+            <li data-emotion-id=":rockstar:" ng-click="emotAdd('rockstar')"><img src="public/img/rockstar.png"/></li>
+            <li data-emotion-id=":sad-1:" ng-click="emotAdd('sad-1')"><img src="public/img/sad-1.png"/></li>
+            <li data-emotion-id=":sad-2:" ng-click="emotAdd('sad-2')"><img src="public/img/sad-2.png"/></li>
+            <li data-emotion-id=":sad-3:" ng-click="emotAdd('sad-3')"><img src="public/img/sad-3.png"/></li>
+            <li data-emotion-id=":sad-4:" ng-click="emotAdd('sad-4')"><img src="public/img/sad-4.png"/></li>
+            <li data-emotion-id=":sad-5:" ng-click="emotAdd('sad-5')"><img src="public/img/sad-5.png"/></li>
+            <li data-emotion-id=":sad-6:" ng-click="emotAdd('sad-6')"><img src="public/img/sad-6.png"/></li>
+            <li data-emotion-id=":sad:" ng-click="emotAdd('sad')"><img src="public/img/sad.png"/></li>
+            <li data-emotion-id=":scared-1:" ng-click="emotAdd('scared-1')"><img src="public/img/scared-1.png"/></li>
+            <li data-emotion-id=":scared-2:" ng-click="emotAdd('scared-2')"><img src="public/img/scared-2.png"/></li>
+            <li data-emotion-id=":scared-3:" ng-click="emotAdd('scared-3')"><img src="public/img/scared-3.png"/></li>
+            <li data-emotion-id=":scared:" ng-click="emotAdd('scared')"><img src="public/img/scared.png"/></li>
+            <li data-emotion-id=":sceptic-1:" ng-click="emotAdd('sceptic-1')"><img src="public/img/sceptic-1.png"/></li>
+            <li data-emotion-id=":sceptic-2:" ng-click="emotAdd('sceptic-2')"><img src="public/img/sceptic-2.png"/></li>
+            <li data-emotion-id=":sceptic-3:" ng-click="emotAdd('sceptic-3')"><img src="public/img/sceptic-3.png"/></li>
+            <li data-emotion-id=":sceptic-4:" ng-click="emotAdd('sceptic-4')"><img src="public/img/sceptic-4.png"/></li>
+            <li data-emotion-id=":sceptic-5:" ng-click="emotAdd('sceptic-5')"><img src="public/img/sceptic-5.png"/></li>
+            <li data-emotion-id=":sceptic-6:" ng-click="emotAdd('sceptic-6')"><img src="public/img/sceptic-6.png"/></li>
+            <li data-emotion-id=":sceptic-7:" ng-click="emotAdd('sceptic-7')"><img src="public/img/sceptic-7.png"/></li>
+            <li data-emotion-id=":sceptic:" ng-click="emotAdd('sceptic')"><img src="public/img/sceptic.png"/></li>
+            <li data-emotion-id=":secret:" ng-click="emotAdd('secret')"><img src="public/img/secret.png"/></li>
+            <li data-emotion-id=":shocked-1:" ng-click="emotAdd('shocked-1')"><img src="public/img/shocked-1.png"/></li>
+            <li data-emotion-id=":shocked-2:" ng-click="emotAdd('shocked-2')"><img src="public/img/shocked-2.png"/></li>
+            <li data-emotion-id=":shocked-3:" ng-click="emotAdd('shocked-3')"><img src="public/img/shocked-3.png"/></li>
+            <li data-emotion-id=":shocked:" ng-click="emotAdd('shocked')"><img src="public/img/shocked.png"/></li>
+            <li data-emotion-id=":sick-1:" ng-click="emotAdd('sick-1')"><img src="public/img/sick-1.png"/></li>
+            <li data-emotion-id=":sick-2:" ng-click="emotAdd('sick-2')"><img src="public/img/sick-2.png"/></li>
+            <li data-emotion-id=":sick-3:" ng-click="emotAdd('sick-3')"><img src="public/img/sick-3.png"/></li>
+            <li data-emotion-id=":sick-4:" ng-click="emotAdd('sick-4')"><img src="public/img/sick-4.png"/></li>
+            <li data-emotion-id=":sick:" ng-click="emotAdd('sick')"><img src="public/img/sick.png"/></li>
+            <li data-emotion-id=":silent:" ng-click="emotAdd('silent')"><img src="public/img/silent.png"/></li>
+            <li data-emotion-id=":skeleton:" ng-click="emotAdd('skeleton')"><img src="public/img/skeleton.png"/></li>
+            <li data-emotion-id=":smile:" ng-click="emotAdd('smile')"><img src="public/img/smile.png"/></li>
+            <li data-emotion-id=":smiling-1:" ng-click="emotAdd('smiling-1')"><img src="public/img/smiling-1.png"/></li>
+            <li data-emotion-id=":smiling:" ng-click="emotAdd('smiling')"><img src="public/img/smiling.png"/></li>
+            <li data-emotion-id=":smoked:" ng-click="emotAdd('smoked')"><img src="public/img/smoked.png"/></li>
+            <li data-emotion-id=":smug-1:" ng-click="emotAdd('smug-1')"><img src="public/img/smug-1.png"/></li>
+            <li data-emotion-id=":smug-2:" ng-click="emotAdd('smug-2')"><img src="public/img/smug-2.png"/></li>
+            <li data-emotion-id=":smug-3:" ng-click="emotAdd('smug-3')"><img src="public/img/smug-3.png"/></li>
+            <li data-emotion-id=":smug-4:" ng-click="emotAdd('smug-4')"><img src="public/img/smug-4.png"/></li>
+            <li data-emotion-id=":smug-5:" ng-click="emotAdd('smug-5')"><img src="public/img/smug-5.png"/></li>
+            <li data-emotion-id=":smug-6:" ng-click="emotAdd('smug-6')"><img src="public/img/smug-6.png"/></li>
+            <li data-emotion-id=":smug:" ng-click="emotAdd('smug')"><img src="public/img/smug.png"/></li>
+            <li data-emotion-id=":sporty:" ng-click="emotAdd('sporty')"><img src="public/img/sporty.png"/></li>
+            <li data-emotion-id=":stunned:" ng-click="emotAdd('stunned')"><img src="public/img/stunned.png"/></li>
+            <li data-emotion-id=":superhero-1:" ng-click="emotAdd('superhero-1')"><img src="public/img/superhero-1.png"/></li>
+            <li data-emotion-id=":superhero-2:" ng-click="emotAdd('superhero-2')"><img src="public/img/superhero-2.png"/></li>
+            <li data-emotion-id=":superhero-3:" ng-click="emotAdd('superhero-3')"><img src="public/img/superhero-3.png"/></li>
+            <li data-emotion-id=":superhero-4:" ng-click="emotAdd('superhero-4')"><img src="public/img/superhero-4.png"/></li>
+            <li data-emotion-id=":superhero:" ng-click="emotAdd('superhero')"><img src="public/img/superhero.png"/></li>
+            <li data-emotion-id=":surprised-1:" ng-click="emotAdd('surprised-1')"><img src="public/img/surprised-1.png"/></li>
+            <li data-emotion-id=":surprised:" ng-click="emotAdd('surprised')"><img src="public/img/surprised.png"/></li>
+            <li data-emotion-id=":thinking:" ng-click="emotAdd('thinking')"><img src="public/img/thinking.png"/></li>
+            <li data-emotion-id=":tired-1:" ng-click="emotAdd('tired-1')"><img src="public/img/tired-1.png"/></li>
+            <li data-emotion-id=":tired-2:" ng-click="emotAdd('tired-2')"><img src="public/img/tired-2.png"/></li>
+            <li data-emotion-id=":tired-3:" ng-click="emotAdd('tired-3')"><img src="public/img/tired-3.png"/></li>
+            <li data-emotion-id=":tired:" ng-click="emotAdd('tired')"><img src="public/img/tired.png"/></li>
+            <li data-emotion-id=":tough-1:" ng-click="emotAdd('tough-1')"><img src="public/img/tough-1.png"/></li>
+            <li data-emotion-id=":tough:" ng-click="emotAdd('tough')"><img src="public/img/tough.png"/></li>
+            <li data-emotion-id=":trendy:" ng-click="emotAdd('trendy')"><img src="public/img/trendy.png"/></li>
+            <li data-emotion-id=":vampire-1:" ng-click="emotAdd('vampire-1')"><img src="public/img/vampire-1.png"/></li>
+            <li data-emotion-id=":vampire:" ng-click="emotAdd('vampire')"><img src="public/img/vampire.png"/></li>
+            <li data-emotion-id=":wink-1:" ng-click="emotAdd('wink-1')"><img src="public/img/wink-1.png"/></li>
+            <li data-emotion-id=":wink-2:" ng-click="emotAdd('wink-2')"><img src="public/img/wink-2.png"/></li>
+            <li data-emotion-id=":wink:" ng-click="emotAdd('wink')"><img src="public/img/wink.png"/></li>
+            <li data-emotion-id=":winking-1:" ng-click="emotAdd('winking-1')"><img src="public/img/winking-1.png"/></li>
+            <li data-emotion-id=":winking:" ng-click="emotAdd('winking')"><img src="public/img/winking.png"/></li>
+            <li data-emotion-id=":yawning-1:" ng-click="emotAdd('yawning-1')"><img src="public/img/yawning-1.png"/></li>
+            <li data-emotion-id=":yawning-2:" ng-click="emotAdd('yawning-2')"><img src="public/img/yawning-2.png"/></li>
+            <li data-emotion-id=":yawning-3:" ng-click="emotAdd('yawning-3')"><img src="public/img/yawning-3.png"/></li>
+            <li data-emotion-id=":yawning:" ng-click="emotAdd('yawning')"><img src="public/img/yawning.png"/></li>
+            <li data-emotion-id=":yelling:" ng-click="emotAdd('yelling')"><img src="public/img/yelling.png"/></li>
+            <li data-emotion-id=":zombie:" ng-click="emotAdd('zombie')"><img src="public/img/zombie.png"/></li>
+          </ul>
+        </div>
+        <input placeholder="Enter your text..."/>
+        <ul>
+          <li><svg enable-background="new 0 0 24 24" height="16px" version="1.1" viewBox="0 0 24 24" width="16px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M22.5,6c-2-2-5.2-2-7.2,0l-8.7,8.6c-1.2,1.2-1.2,3.1,0,4.3c1.2,1.2,3.1,1.2,4.3,0l7.2-7.2c0.4-0.4,0.4-1,0-1.4  c-0.4-0.4-1-0.4-1.4,0l-7.2,7.2c-0.4,0.4-1,0.4-1.4,0c-0.4-0.4-0.4-1,0-1.4l8.7-8.7c1.2-1.2,3.1-1.2,4.3,0c1.2,1.2,1.2,3.1,0,4.3  l-8.7,8.6c-2,2-5.2,2-7.2,0c-2-2-2-5.2,0-7.2L16.7,1.7c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L3.7,11.8c-2.8,2.8-2.8,7.3,0,10.1  c2.8,2.8,7.3,2.8,10.1,0l8.7-8.6C24.4,11.3,24.4,8,22.5,6z"/></svg></li>
+          <li id="emoticon-btn"><svg id="emotion_icon" height="16px" version="1.1" viewBox="0 0 105 105" width="16px" xmlns="http://www.w3.org/2000/svg" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" xmlns:xlink="http://www.w3.org/1999/xlink"><g fill="none" fill-rule="evenodd" id="Imoticon" stroke="none" stroke-width="1"><path d="M52,94 C75.1959606,94 94,75.1959606 94,52 C94,28.8040394 75.1959606,10 52,10 C28.8040394,10 10,28.8040394 10,52 C10,75.1959606 28.8040394,94 52,94 Z M52,83 C67.4639738,83 79,72.0832618 79,58 C79,56.5 67.4639738,61.4228513 52,61.4228513 C36.5360262,61.4228513 25,56.5 25,58 C25,72.0832618 36.5360262,83 52,83 Z M40.5,49 C42.9852815,49 45,46.7614239 45,44 C45,41.2385761 42.9852815,39 40.5,39 C38.0147185,39 36,41.2385761 36,44 C36,46.7614239 38.0147185,49 40.5,49 Z M63.5,49 C65.9852815,49 68,46.7614239 68,44 C68,41.2385761 65.9852815,39 63.5,39 C61.0147185,39 59,41.2385761 59,44 C59,46.7614239 61.0147185,49 63.5,49 Z M63.5,49" fill="#000000" id="imoticon_3"/></g></svg>
+<svg id="emotion_close" height="16px" style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512" width="16px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M437.5,386.6L306.9,256l130.6-130.6c14.1-14.1,14.1-36.8,0-50.9c-14.1-14.1-36.8-14.1-50.9,0L256,205.1L125.4,74.5  c-14.1-14.1-36.8-14.1-50.9,0c-14.1,14.1-14.1,36.8,0,50.9L205.1,256L74.5,386.6c-14.1,14.1-14.1,36.8,0,50.9  c14.1,14.1,36.8,14.1,50.9,0L256,306.9l130.6,130.6c14.1,14.1,36.8,14.1,50.9,0C451.5,423.4,451.5,400.6,437.5,386.6z"/></svg>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script src="public/js/app.min.js" type="text/javascript"></script>
+</body>

@@ -1,0 +1,317 @@
+// @import url('https://fonts.googleapis.com/css?family=Roboto')
+@import "reset"
+
+white-color = #d5
+
+body
+	background-color #252C36
+	color #666
+	font-family 'Roboto', Helvetica, Tahoma
+	font-size 14px;
+
+	div.chat-block
+		margin 100px auto
+		width 740px
+
+		div.sidebar
+			display block
+			float left
+			width 200px
+			padding 20px
+			min-height 430px
+			background-color #0B0F15
+			border-top-left-radius 6px
+			border-bottom-left-radius 6px
+
+			div.row--search
+
+				position relative
+
+				svg
+					position absolute
+					top 8px
+					left 10px
+					width 20px
+					height 20px
+					opacity 0.4
+
+					path
+						fill #333C46
+
+				input
+					width 100%
+					border-radius 3px
+					border 0
+					padding 10px
+					font-size 13px
+					padding-left 40px
+					background-color #16191E
+					color #f
+
+			div.row--online-list
+
+				.row:first-child
+					padding 20px 0
+
+					span
+						color #444E5B
+
+				.row:nth-child(2)
+
+					ul
+						overflow auto
+						max-height 340px
+
+						li
+							padding 10px 0
+							color white-color
+							cursor pointer
+
+							&.online:before
+								display block
+								content ''
+								border-radius 30px
+								width 8px
+								height 8px
+								background-color #71A83E
+								float left
+								margin-top 3px
+								margin-right 10px
+
+							&.offline:before
+								display block
+								content ''
+								border-radius 30px
+								width 8px
+								height 8px
+								background-color #C34949
+								float left
+								margin-top 3px
+								margin-right 10px
+
+		div.content
+			display inline-block
+			width 500px
+			background-color #161C25
+			border-top-right-radius 6px
+			border-bottom-right-radius 6px
+			position relative
+
+			div.row--header
+				background-color #19202A
+				padding 20px
+				color white-color
+				border-top-right-radius 6px
+				position relative
+
+				input#search-input
+					padding 8px
+					position absolute
+					top 50%
+					transform translateY(-50%)
+					border 0
+					font-size 14px
+					background-color #19202a
+					width 75%
+					color white-color
+
+				a
+					cursor pointer
+
+				label
+					font-size 14px
+					color #585d65
+					background-color transparent
+
+				div
+					float right
+
+					svg
+						width 20px
+						height 20px
+						vertical-align top
+						margin-top -3px
+						margin-right 15px
+						cursor pointer
+
+						path
+							fill #333C46
+
+			div.row--messages
+
+				padding 20px 35px 20px 20px
+				overflow-y auto
+				height 329px
+
+				div.row
+					div.message
+						display inline-block
+						margin 0 0 45px
+						background-color #1D6FC8
+						color white-color
+						text-align left
+						line-height 24px
+						padding 10px 15px
+						border-radius 3px
+						max-width 300px
+						position relative
+						transition all 0.4s
+						opacity 0
+						transform translateY(20px)
+
+						img
+							display inline-block
+							width 18px
+							vertical-align middle
+							margin-left 4px
+							margin-right 4px
+
+						&.show
+							opacity 1
+							transform translateY(0px)
+
+						&.editing
+							transform translateX(35px)
+							cursor pointer
+
+							div.check
+								display block
+
+						div.check
+							display none
+							position absolute
+							left -40px
+							top 50%
+							transform translateY(-50%)
+							border 1px solid white-color
+							border-radius 30px
+
+							&.checked
+								background-color white-color
+
+								svg
+									path
+										fill #161c25
+
+							svg
+								width 18px
+								height 18px
+								margin 3px
+
+								path
+									fill white-color
+
+						span
+							position absolute
+							bottom -25px
+							left 0
+							font-size 12px
+							opacity 0.5
+							min-width 200px
+
+				div.row--message-me
+					text-align right
+
+					div.message
+						background-color #526982
+
+						&.editing
+							transform translateX(0)!important
+
+					span
+						right 0
+						text-align right
+						left inherit!important
+
+			div.row--input
+				width 100%
+
+				#emotion_icon
+					transition all 0.3s
+					&.hide
+						display none
+
+				#emotion_close
+					display none
+					transition all 0.3s
+					&.show
+						display inherit
+
+				div.emoticons-popover
+					display none
+					opacity 0
+					position absolute
+					width 250px
+					max-height 250px
+					background-color #1C242F
+					border-radius 6px
+					right -1%
+					bottom 12%
+					border-radius 6px
+					box-shadow 0 5px 20px #171717
+					z-index 1
+
+					ul
+						overflow auto
+						max-height 200px
+						padding 8px
+
+						&:before
+							display block
+							position absolute
+							bottom -10px
+							right 20px
+							content ''
+							width 0
+							height 0
+							border-style solid
+							transform rotate(180deg)
+							border-width 0 10px 10px 10px
+							border-color transparent transparent #1C242F transparent
+
+						li
+							display inline-block
+							padding 7px
+							border-radius 3px
+							cursor pointer
+
+							&:hover
+								background-color #2B3544
+
+							img
+								width 22px
+
+				input
+					padding 15px 85px 15px 15px
+					border 0
+					width 100%
+					background-color #1A212C
+					font-size 14px
+					color white-color
+					border-bottom-right-radius 6px
+
+				> ul
+					position absolute
+					right 0
+					bottom 15px
+
+					li
+						display inline-block
+						float left
+						margin-right 15px
+						cursor pointer
+
+				svg
+					width 20px
+					height 20px
+
+					path
+						fill #5F6B7B
+
+
+
+	#ascrail2000 .nicescroll-cursors
+		margin 0
+
+	.nicescroll-cursors
+		cursor pointer
